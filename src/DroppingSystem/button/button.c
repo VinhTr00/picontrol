@@ -56,8 +56,6 @@ BUTTON_STATE BUTTON_Read(BUTTON_Name* Button)
 					Button->isPress = 0;
 					Button->timePress = 0;
 					Button->timeDouble = 0;
-                    Button->counterServo++;
-                    if (Button->counterServo > NUMBER_OF_SERVO) Button->counterServo = 0;
 					Button->State = SINGLE_CLICK;
 					return Button->State;
 				}

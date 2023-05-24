@@ -76,12 +76,9 @@ static void _servoTask(void){
     switch (__servoMode)
     {
         case SLEEP:
-            //temp_counter++;
-            // printf("Im Sleeping: %d\n", temp_counter);
-            // delay(50);
+            /* do nothing */
             break;
         case DROP_ONE:
-            //printf("Drop One\n");
             if (_servoOneDrop(&__servoChannel) == SLEEP){
                 printf("SLEEP\n");
             }

@@ -23,7 +23,6 @@ typedef struct {
 	uint8_t  isPress;
 	uint16_t timePress;
 	uint16_t timeDouble;
-    uint8_t counterServo;
 } BUTTON_Name;
 
 extern void buttonSetUp(void);
