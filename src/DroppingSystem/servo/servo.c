@@ -22,17 +22,17 @@ static ServoMode __servoMode;
 
 /************* Private Functions Declaration *****************/
 static void _servoStartPWM(ServoChannel channel){
-    PCA9685_SetServoAngle(channel, 180);
+    servoSetAngle(channel, 180);
     delay(300);
-    PCA9685_SetServoAngle(channel, 0);
+    servoSetAngle(channel, 0);
 }
 static void _servoAllDrop(void){
     for (uint8_t i = 0; i < NUMBER_OF_SERVO; i++){
-        PCA9685_SetServoAngle(ServoArray[i].channel, 180);
+        servoSetAngle(ServoArray[i].channel, 180);
     }
     delay(300);
     for (uint8_t i = 0; i < NUMBER_OF_SERVO; i++){
-        PCA9685_SetServoAngle(ServoArray[i].channel, 0);
+        servoSetAngle(ServoArray[i].channel, 0);
         ServoArray[i].activated = false;
         __servoChannel = 0;
     }
@@ -68,7 +68,7 @@ static void _servoInit(void){
         ServoArray[i].channel = i;
         ServoArray[i].activated = false;
         /* calib servo */
-        PCA9685_SetServoAngle(i, 0); 
+        servoSetAngle(i, 0); 
     }
 }
 
@@ -97,6 +97,10 @@ static void _servoTask(void){
     }
 }
 /************* Public Functions Declaration ******************/
+void servoSetAngle(uint8_t channel, float angle){
+    PCA9685_SetServoAngle(channel, angle);
+}
+
 void servoChangeMode(ServoMode mode){
     __servoMode = mode;
 }

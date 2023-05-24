@@ -3,8 +3,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <float.h>
 
-#define SERVO_TASK_PERIOD       5 //ms
+#define SERVO_TASK_PERIOD       3 //ms
 #define NUMBER_OF_SERVO         9
 
 typedef enum {
@@ -39,5 +40,6 @@ typedef struct {
 
 extern void servoSetup(void);
 extern void servoChangeMode(ServoMode mode);
+extern void servoSetAngle(uint8_t channel, float angle);
 
 #endif /* __SERVO_H */
