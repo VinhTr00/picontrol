@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define BUTTON_TASK_PERIOD      3 //ms
+#define BUTTON_TASK_PERIOD      10 //ms
 
 #define DEBOUND_TIME 50
 #define SINGLE_CLICK_TIME 1000

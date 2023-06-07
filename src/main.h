@@ -10,5 +10,6 @@
 #include "task_management.h"
 #include "button.h"
 #include "servo.h"
+#include "sbus_application.h"
 
 #endif /* __MAIN_H */

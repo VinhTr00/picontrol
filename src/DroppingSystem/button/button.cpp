@@ -81,6 +81,7 @@ BUTTON_STATE BUTTON_Read(BUTTON_Name* Button)
 	return NO_CLICK;
 }
 void _buttonTask(void){
+	//printf("Hello BUTTON\n");
 	State = BUTTON_Read(&Button1);
     switch (State)
     {
