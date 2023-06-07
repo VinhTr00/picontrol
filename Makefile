@@ -1,5 +1,5 @@
 # Thanks to Job Vranish (https://spin.atomicobject.com/2016/08/26/makefile-c-projects/)
-TARGET_EXEC := test_dropping
+TARGET_EXEC := dropping
 
 BUILD_DIR := ./build
 SRC_DIRS := ./src

@@ -46,10 +46,9 @@ static ServoMode _servoOneDrop(ServoChannel *channel){
             for (int i = 0 ; i < NUMBER_OF_SERVO; i++){
                 ServoArray[i].activated = false;
             }
-            return SLEEP;
         }
     }
-    printf("Channel: %d DROP\n", *channel);
+    printf("Channel %d: DROP\n", *channel);
     _servoStartPWM(*channel);
     ServoArray[*channel].activated = true;
     (*channel)++;
@@ -64,12 +63,17 @@ static ServoMode _servoOneDrop(ServoChannel *channel){
 }
 
 static void _servoInit(void){
+    PCA9685_Init();
     for (uint8_t i = 0; i < NUMBER_OF_SERVO; i++){
         ServoArray[i].channel = i;
         ServoArray[i].activated = false;
         /* calib servo */
         servoSetAngle(i, 0); 
+        
     }
+    ServoArray[0].activated = true;
+    ServoArray[7].activated = true;
+    ServoArray[8].activated = true;
 }
 
 static void _servoTask(void){
@@ -103,7 +107,6 @@ void servoChangeMode(ServoMode mode){
 }
 
 void servoSetup(void){
-    PCA9685_Init();
     _servoInit();
     taskCreate(&servoTaskID, TASK_MODE_REPEATED, _servoTask);
     taskStart(servoTaskID, SERVO_TASK_PERIOD);

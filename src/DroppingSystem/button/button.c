@@ -5,10 +5,12 @@
 #include "servo.h"
 
 /*----------------------------------- Private Definitions ----------------------------------*/
-#define BUTTON_PIN          29
+#define BUTTON_PIN          29 // "gpio readall" and use wPi pin 
+
 /*----------------------------------- Private Functions ------------------------------------*/
 static void _buttonTask(void);
 static void _buttonInit(BUTTON_Name* Button, int Button_pin);
+
 static uint8_t BUTTON_ReadPin(BUTTON_Name* Button);
 static BUTTON_STATE BUTTON_Read(BUTTON_Name* Button);
 static void BUTTON_DelayMs(uint16_t Time);
@@ -24,8 +26,7 @@ uint8_t BUTTON_ReadPin(BUTTON_Name* Button){
     return digitalRead(Button->Pin);
 }
 
-static void BUTTON_DelayMs(uint16_t Time)
-{
+static void BUTTON_DelayMs(uint16_t Time){
 	delay(Time);
 }
 

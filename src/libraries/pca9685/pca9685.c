@@ -93,7 +93,7 @@ PCA9685_STATUS PCA9685_SetPwmFrequency(uint16_t Frequency)
 
 	//
 	//	To change the frequency, PCA9685 have to be in Sleep mode.
-	//
+	// 	
 	PCA9685_SleepMode(1);
 	wiringPiI2CWriteReg8(pca9685_i2c, PCA9685_PRESCALE, Prescale);
 	PCA9685_SleepMode(0);
@@ -169,9 +169,7 @@ PCA9685_STATUS PCA9685_SetServoAngle(uint8_t Channel, float Angle)
 PCA9685_STATUS PCA9685_Init(void)
 {
 	pca9685_i2c = wiringPiI2CSetup(PCA9685_ADDRESS);
-	PCA9685_STATUS temp;
-	temp = PCA9685_SoftwareReset();
-	printf("Return value of PCA9685_SoftwareReset(): %d\n", temp);
+	PCA9685_SoftwareReset();
 #ifdef PCA9685_SERVO_MODE
 	PCA9685_SetPwmFrequency(50);
 #else
