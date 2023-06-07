@@ -1,5 +1,9 @@
 #include "sbus/packet_decoder.h"
 
+uint16_t MAX(uint16_t const A, uint16_t const B){
+    return A > B ? A : B;
+}
+
 enum sbus_err_t sbus_decode(const uint8_t buf[],
                             struct sbus_packet_t *packet)
 {
@@ -28,6 +32,18 @@ enum sbus_err_t sbus_decode(const uint8_t buf[],
     channels[13] = (uint16_t)((payload[17] >> 7 | payload[18] << 1 | payload[19] << 9)   & 0x07FF);
     channels[14] = (uint16_t)((payload[19] >> 2 | payload[20] << 6)                      & 0x07FF);
     channels[15] = (uint16_t)((payload[20] >> 5 | payload[21] << 3)                      & 0x07FF);
+
+    /* 
+     *  Calculate pwm value (us)
+     *  Reference: https://github.com/ArduPilot/ardupilot/blob/master/libraries/AP_SBusOut/AP_SBusOut.cpp#L92 
+     */
+    for (uint8_t i = 0; i < SBUS_NUM_CHANNELS; i++){
+        channels[i] = channels[i]/SBUS_SCALE + SBUS_MIN;
+        if (channels[i] > 0x07ff) {
+            channels[i] = 0x07ff;
+        }
+        channels[i] = MAX(channels[i], SBUS_MIN);
+    }
 
     uint8_t opt = buf[23] & 0xf;
     packet->ch17      = opt & SBUS_OPT_C17;

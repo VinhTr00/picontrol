@@ -2,14 +2,16 @@
 #include "servo.h"
 #include "pca9685.h"
 #include "task_management.h"
+#include <wiringPi.h>
+
 /*----------------------------------- Private Definitions ----------------------------------*/
 
 /*----------------------------------- Private Functions ------------------------------------*/
 static void _servoTask(void);
 static void _servoInit(void);
-static void _servoAllDrop(uint8_t &channel);
+static void _servoAllDrop(uint8_t *channel);
 static void _servoStartPWM(uint8_t channel);
-static ServoMode _servoOneDrop(uint8_t &channel);
+static ServoMode _servoOneDrop(uint8_t *channel);
 
 /*----------------------------------- Private Variables ------------------------------------*/
 static TaskIDType servoTaskID;
@@ -26,7 +28,7 @@ static void _servoStartPWM(uint8_t channel){
     delay(300);
     servoSetAngle(channel, 0);
 }
-static void _servoAllDrop(uint8_t &channel){
+static void _servoAllDrop(uint8_t *channel){
     for (uint8_t i = 0; i < NUMBER_OF_SERVO; i++){
         servoSetAngle(ServoArray[i].channel, 180);
     }
@@ -34,27 +36,26 @@ static void _servoAllDrop(uint8_t &channel){
     for (uint8_t i = 0; i < NUMBER_OF_SERVO; i++){
         servoSetAngle(ServoArray[i].channel, 0);
         ServoArray[i].activated = false;
-        channel = 0;
+        *channel = 0;
     }
 }
 
-static ServoMode _servoOneDrop(uint8_t &channel){
-    while (ServoArray[channel].activated){
-        (channel)++;
-        if (channel >= NUMBER_OF_SERVO){
-            channel = 0;
+static ServoMode _servoOneDrop(uint8_t *channel){
+    while (ServoArray[*channel].activated){
+        (*channel)++;
+        if (*channel >= NUMBER_OF_SERVO){
+            *channel = 0;
             for (int i = 0 ; i < NUMBER_OF_SERVO; i++){
                 ServoArray[i].activated = false;
             }
-            return SLEEP;
         }
     }
-    printf("Channel: %d DROP\n", channel);
-    _servoStartPWM(channel);
-    ServoArray[channel].activated = true;
-    (channel)++;
-    if (channel >= NUMBER_OF_SERVO){
-        channel = 0;
+    printf("Channel: %d DROP\n", *channel);
+    _servoStartPWM(*channel);
+    ServoArray[*channel].activated = true;
+    (*channel)++;
+    if (*channel >= NUMBER_OF_SERVO){
+        *channel = 0;
         for (int i = 0 ; i < NUMBER_OF_SERVO; i++){
             ServoArray[i].activated = false;
         }
@@ -80,14 +81,14 @@ static void _servoTask(void){
             /* do nothing */
             break;
         case DROP_ONE:
-            if (_servoOneDrop(__servoChannel) == SLEEP){
+            if (_servoOneDrop(&__servoChannel) == SLEEP){
                 printf("SLEEP\n");
             }
             __servoMode = SLEEP;
             break;
         case DROP_ALL:
             printf("Drop All\n");
-            _servoAllDrop(__servoChannel);
+            _servoAllDrop(&__servoChannel);
             __servoMode = SLEEP;
             break;
         default:

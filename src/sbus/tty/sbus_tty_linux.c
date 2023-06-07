@@ -10,6 +10,11 @@
 
 #include "sbus/sbus_spec.h"
 
+static int baudrate = SBUS_BAUD;
+
+void change_baudrate(int baud){
+    baudrate = baud;
+}
 
 int sbus_install(const char path[], bool blocking, uint8_t timeout)
 {
@@ -80,7 +85,8 @@ int sbus_install(const char path[], bool blocking, uint8_t timeout)
     // set SBUS baud
     options.c_cflag &= ~CBAUD;
     options.c_cflag |= BOTHER;
-    options.c_ispeed = options.c_ospeed = SBUS_BAUD;
+    options.c_ispeed = options.c_ospeed = baudrate;
+    // options.c_ospeed = 9600;
     //printf("Set OK\n");
 
     if (ioctl(fd, TCSETS2, &options))

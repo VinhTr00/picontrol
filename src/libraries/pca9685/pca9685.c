@@ -8,11 +8,11 @@
  *      Website: https://msalamon.pl/nigdy-wiecej-multipleksowania-na-gpio!-max7219-w-akcji-cz-3/
  *      GitHub:  https://github.com/lamik/Servos_PWM_STM32_HAL
  */
-
+#include <wiringPi.h>
+#include <wiringPiI2C.h>
 #include "pca9685.h"
 #include "task_management.h"
 #include "math.h"
-
 
 static int pca9685_i2c;
 
@@ -171,6 +171,7 @@ PCA9685_STATUS PCA9685_Init(void)
 	pca9685_i2c = wiringPiI2CSetup(PCA9685_ADDRESS);
 	PCA9685_STATUS temp;
 	temp = PCA9685_SoftwareReset();
+	// cout << "Return value of PCA9685_SoftwareReset(): " << temp << endl; 
 	printf("Return value of PCA9685_SoftwareReset(): %d\n", temp);
 #ifdef PCA9685_SERVO_MODE
 	PCA9685_SetPwmFrequency(50);

@@ -52,10 +52,12 @@ sbus_err_t SBUS::read()
 
 sbus_err_t SBUS::write(const sbus_packet_t &packet)
 {
+    uint8_t arr[] = "Hello World\r\n";
     sbus_err_t err = sbus_encode(_writeBuf, &packet);
     if (err)
         return err;
-    return sbus_write(_fd, _writeBuf, SBUS_PACKET_SIZE);
+    return sbus_write(_fd, arr, sizeof(arr)/sizeof(uint8_t));
+    // return sbus_write(_fd, _writeBuf, SBUS_PACKET_SIZE);
 }
 
 uint16_t SBUS::channel(int num) const

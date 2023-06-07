@@ -1,7 +1,8 @@
 #include "main.h"
+#include <wiringPi.h>
 
-int main(void){
-
+int main(int argc, char **argv)
+{
     wiringPiSetup();
     tasksSetup();
     buttonSetUp();
@@ -11,4 +12,6 @@ int main(void){
     while (1){
         tasksRun();
     }
+
+    return 0;
 }

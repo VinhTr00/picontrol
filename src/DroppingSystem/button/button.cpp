@@ -1,11 +1,12 @@
 /*----------------------------------- Include ----------------------------------------------*/
 #include "button.h"
 #include "task_management.h"
-#include "wiringPi.h"
 #include "servo.h"
+#include <wiringPi.h>
 
 /*----------------------------------- Private Definitions ----------------------------------*/
 #define BUTTON_PIN          29
+
 /*----------------------------------- Private Functions ------------------------------------*/
 static void _buttonTask(void);
 static void _buttonInit(BUTTON_Name* Button, int Button_pin);
@@ -81,10 +82,12 @@ BUTTON_STATE BUTTON_Read(BUTTON_Name* Button)
 	return NO_CLICK;
 }
 void _buttonTask(void){
-	//printf("Hello BUTTON\n");
 	State = BUTTON_Read(&Button1);
     switch (State)
     {
+		case NO_CLICK:
+			/* do nothing */
+			break;
         case SINGLE_CLICK:
             servoChangeMode(DROP_ONE);
             break;

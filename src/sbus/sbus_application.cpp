@@ -23,7 +23,7 @@ static void _sbusSerialInit(void);
 /*----------------------------------- Private Variables ------------------------------------*/
 static SBUS sbus;
 static TaskIDType sbusTaskID;
-static int count;
+
 
 /*----------------------------------- Public Variables -------------------------------------*/
 
@@ -61,42 +61,43 @@ static void _sbusSerialInit(void){
         cerr << "SBUS install error: " << err << endl;
         // return err;
     }
-
     cout << "SBUS installed" << endl;
 }
 static void _sbusTask(void){
     sbus_err_t err;
     bool flag = true;
-    while (flag){
-        static auto lastWrite = steady_clock::now();
-        auto now = steady_clock::now();
+    static auto count = 0;
+    // while (flag){
+    //     static auto lastWrite = steady_clock::now();
+    //     auto now = steady_clock::now();
 
-        /*
-        * Receiving happens independently so we can do other things.
-        * Here we send a packet every second.
-        */
-        if (now - lastWrite > milliseconds(1000))
-        {
-            lastWrite = now;
+    //     /*
+    //     * Receiving happens independently so we can do other things.
+    //     * Here we send a packet every second.
+    //     */
+    //     if (now - lastWrite > milliseconds(1000))
+    //     {
+    //         lastWrite = now;
 
-            sbus_packet_t packet = {
-                .ch17 = true,
-                .ch18 = false,
-                .failsafe = true,
-                .frameLost = false,
-            };
+    //         sbus_packet_t packet = {
+    //             .ch17 = true,
+    //             .ch18 = false,
+    //             .failsafe = true,
+    //             .frameLost = false,
+    //         };
 
-            for (int i = 0; i < 16; i++)
-            {
-                packet.channels[i] = count;
-            }
+    //         for (int i = 0; i < 16; i++)
+    //         {
+    //             packet.channels[i] = count;
+    //         }
 
-            // make sure to limit sending frequency, SBUS is not that fast
-            sbus.write(packet);
-            count++;
-        }
-        flag = false;
-    }
+    //         // make sure to limit sending frequency, SBUS is not that fast
+    //         // printf("LLLL\n");
+    //         sbus.write(packet);
+    //         count++;
+    //     }
+    //     flag = false;
+    // }
     if ((err = sbus.read()) != SBUS_FAIL)
     {
         //cout << "WTF" << endl;
