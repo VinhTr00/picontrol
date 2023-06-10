@@ -7,7 +7,6 @@
 #include <stdint.h>
 #endif
 
-
 #define BUTTON_TASK_PERIOD      10 //ms
 
 #define DEBOUND_TIME 50
