@@ -2,10 +2,14 @@
 #define __TASK_MANAGEMENT_H__
 
 /*---------------------------------- Include ---------------------------------------------*/
+#ifdef __cplusplus
+#include <cstdint>
+#include <cstdbool>
+#else
 #include <stdint.h>
-#include <stdio.h>
 #include <stdbool.h>
-#include "main.h"
+#endif
+
 
 /*----------------------------------- Public Definitions ----------------------------------*/
 #define MAX_TASKS_NUM                   5
@@ -35,13 +39,21 @@ typedef struct
     TaskType tasksArray[MAX_TASKS_NUM];
 }TaskMannageType;
 
-
 #define taskGetTime()       millis()     
 
 /*------------------------------- Public Functions Prototype ------------------------------*/
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern void taskCreate(TaskIDType * taskID, TaskModeEnum taskMode, TaskHandler taskHandler);
 extern void taskStart(TaskIDType taskID, uint16_t taskPeriod);
 extern void taskStop(TaskIDType taskID);
 extern void tasksRun(void);
 extern void tasksSetup(void);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif // !__TASK_MANAGEMENT_H__

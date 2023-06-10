@@ -1,6 +1,7 @@
 /*----------------------------------- Include ----------------------------------------------*/
 #include "speaker.h"
-#include <stdio.h>
+#include "task_management.h"
+#include <wiringPi.h>
 
 /*----------------------------------- Private Definitions ----------------------------------*/
 #define GPIO_PIN_RESET  0

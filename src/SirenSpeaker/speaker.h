@@ -1,9 +1,6 @@
 #ifndef __SPEAKER_H
 #define __SPEAKER_H
 
-#include <wiringPi.h>
-#include "task_management.h"
-
 #define SPEAKER_TASK_PERIOD         3 //ms
 
 #define TONE1_PIN                   27
@@ -17,7 +14,15 @@ typedef enum {
 	MIC,
 } StateSpeaker;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern void speakerSetup(void);
 extern void speakerChangeMode(StateSpeaker mode);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __SPEAKER_H */

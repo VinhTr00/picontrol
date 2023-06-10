@@ -1,8 +1,8 @@
 /*----------------------------------- Include ----------------------------------------------*/
 #include "button.h"
 #include "task_management.h"
-#include "wiringPi.h"
 #include "servo.h"
+#include <wiringPi.h>
 
 /*----------------------------------- Private Definitions ----------------------------------*/
 #define BUTTON_PIN          29 // "gpio readall" and use wPi pin 
@@ -85,6 +85,9 @@ void _buttonTask(void){
 	State = BUTTON_Read(&Button1);
     switch (State)
     {
+		case NO_CLICK:
+			/* do nothing */
+			break;
         case SINGLE_CLICK:
             servoChangeMode(DROP_ONE);
             break;

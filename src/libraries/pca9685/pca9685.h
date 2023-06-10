@@ -12,7 +12,14 @@
 #ifndef PCA9685_H_
 #define PCA9685_H_
 
-#include "main.h"
+#ifdef __cplusplus
+#include <cstdint>
+#include <cstdbool>
+#else
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdio.h>
+#endif
 
 //
 //	Enable Servo control mode
@@ -71,6 +78,10 @@ typedef enum {
 	PCA9685_ERROR	= 1
 } PCA9685_STATUS;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 PCA9685_STATUS PCA9685_SoftwareReset(void);
 PCA9685_STATUS PCA9685_SleepMode(uint8_t Enable);
 PCA9685_STATUS PCA9685_RestartMode(uint8_t Enable);
@@ -87,5 +98,9 @@ PCA9685_STATUS PCA9685_SetServoAngle(uint8_t Channel, float Angle);
 #endif
 
 PCA9685_STATUS PCA9685_Init(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* PCA9685_H_ */

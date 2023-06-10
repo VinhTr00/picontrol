@@ -1,9 +1,13 @@
 #ifndef __BUTTON_H
 #define __BUTTON_H
 
+#ifdef __cplusplus
+#include <cstdint>
+#else
 #include <stdint.h>
+#endif
 
-#define BUTTON_TASK_PERIOD      3 //ms
+#define BUTTON_TASK_PERIOD      10 //ms
 
 #define DEBOUND_TIME            50
 #define SINGLE_CLICK_TIME       1000
@@ -24,6 +28,12 @@ typedef struct {
 	uint16_t timeDouble;
 } BUTTON_Name;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 extern void buttonSetUp(void);
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __BUTTON_H */
