@@ -71,11 +71,7 @@ static void _servoInit(void){
         ServoArray[i].activated = false;
         /* calib servo */
         servoSetAngle(i, 0); 
-        
     }
-    ServoArray[0].activated = true;
-    ServoArray[7].activated = true;
-    ServoArray[8].activated = true;
 }
 
 static void _servoTask(void){
