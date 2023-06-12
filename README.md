@@ -17,9 +17,9 @@ This project using hardware:
 - `Interface Options` -> `I2C` -> `Enable`
 ### To use built-in UART
 - `sudo raspi-config`
-- `Interface Options` -> `Serial Port`\
-Login Shell: Disable \
-Serial Interface: Enable
+- `Interface Options` -> `Serial Port`
+    - Login Shell: Disable 
+    - Serial Interface: Enable \
 ![image](docs/img/rasp.png)
 
 - `sudo systemctl disable hciuart`
