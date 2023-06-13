@@ -10,6 +10,8 @@
 #include <stdbool.h>
 #endif
 
+#include <wiringPi.h>
+
 
 /*----------------------------------- Public Definitions ----------------------------------*/
 #define MAX_TASKS_NUM                   5
