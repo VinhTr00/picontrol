@@ -1,14 +1,15 @@
 #ifndef __SPEAKER_H
 #define __SPEAKER_H
 
-#define SPEAKER_TASK_PERIOD         3 //ms
+#define SPEAKER_TASK_PERIOD         10 //ms
 
-#define TONE1_PIN                   27
-#define TONE2_PIN                   28
-#define MIC_PIN                     29
+#define TONE1_PIN                   21
+#define TONE2_PIN                   22
+#define MIC_PIN                     23
 
 typedef enum {
-	ERROR_STATE= -1,
+	IDLE,
+	ERROR_STATE,
 	TONE1,
 	TONE2,
 	MIC,
@@ -17,10 +18,8 @@ typedef enum {
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 extern void speakerSetup(void);
 extern void speakerChangeMode(StateSpeaker mode);
-
 #ifdef __cplusplus
 }
 #endif

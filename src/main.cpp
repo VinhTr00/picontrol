@@ -7,6 +7,7 @@ int main(int argc, char **argv)
     tasksSetup();
     buttonSetUp();
     servoSetup();
+    speakerSetup();
     sbusSetup();
 
     while (1){

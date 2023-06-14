@@ -4,6 +4,7 @@
 
 #include "sbus_application.h"
 #include "task_management.h"
+#include "speaker.h"
 
 using std::cout;
 using std::cerr;
@@ -14,21 +15,45 @@ using std::chrono::steady_clock;
 using std::chrono::milliseconds;
 
 /*----------------------------------- Private Definitions ----------------------------------*/
+#define MIN_THRESHOLD_CHANGE    50
 
 /*----------------------------------- Private Functions ------------------------------------*/
 static void _sbusOnPacket(const sbus_packet_t &packet);
 static void _sbusTask(void);
 static void _sbusSerialInit(void);
+static void _sbusComparePulse(const uint16_t channel);
 
 /*----------------------------------- Private Variables ------------------------------------*/
 static SBUS sbus;
 static TaskIDType sbusTaskID;
 
-
 /*----------------------------------- Public Variables -------------------------------------*/
 
 
 /************* Private Functions Declaration *****************/
+static void _sbusComparePulse(const uint16_t channel)
+{
+    static uint16_t temp_channel;
+    if (abs(channel - temp_channel) > MIN_THRESHOLD_CHANGE)
+    {
+        temp_channel = channel;
+        if (temp_channel > SBUS_SERVO_MIN && temp_channel < SBUS_SERVO_THRESHOLD_1){
+            speakerChangeMode(TONE1);
+        }
+        else if (temp_channel > SBUS_SERVO_THRESHOLD_1 && temp_channel < SBUS_SERVO_THRESHOLD_2)
+        {
+            speakerChangeMode(MIC);
+        }
+        else if (temp_channel > SBUS_SERVO_THRESHOLD_2 && temp_channel < SBUS_SERVO_MAX)
+        {
+            speakerChangeMode(TONE2);
+        }
+        else
+        {
+            speakerChangeMode(ERROR_STATE);
+        }
+    }
+}
 static void _sbusOnPacket(const sbus_packet_t &packet)
 {
     static auto lastPrint = steady_clock::now();
@@ -37,78 +62,38 @@ static void _sbusOnPacket(const sbus_packet_t &packet)
     if (now - lastPrint > milliseconds(500))
     {
         for (int i = 0; i < 16; ++i)
+        {
             cout << "ch" << i + 1 << ": " << packet.channels[i] << "\t";
-        /*
-        cout << "ch17: " << (packet.ch17 ? "true" : "false") << "\t"
-             << "ch18: " << (packet.ch18 ? "true" : "false");
-
-        if (packet.frameLost)
-            cout << "\tFrame lost";
-
-        if (packet.failsafe)
-            cout << "\tFailsafe active";
-        */
+        }
         cout << endl;
         
         lastPrint = now;
     }
+    _sbusComparePulse(packet.channels[11]);
 }
+
 static void _sbusSerialInit(void){
     sbus.onPacket(_sbusOnPacket);
     sbus_err_t err = sbus.install("/dev/ttyAMA0", false);  // false for non-blocking
     if (err != SBUS_OK)
     {
         cerr << "SBUS install error: " << err << endl;
-        // return err;
+        return;
     }
     cout << "SBUS installed" << endl;
 }
 static void _sbusTask(void){
     sbus_err_t err;
     bool flag = true;
-    static auto count = 0;
-    // while (flag){
-    //     static auto lastWrite = steady_clock::now();
-    //     auto now = steady_clock::now();
-
-    //     /*
-    //     * Receiving happens independently so we can do other things.
-    //     * Here we send a packet every second.
-    //     */
-    //     if (now - lastWrite > milliseconds(1000))
-    //     {
-    //         lastWrite = now;
-
-    //         sbus_packet_t packet = {
-    //             .ch17 = true,
-    //             .ch18 = false,
-    //             .failsafe = true,
-    //             .frameLost = false,
-    //         };
-
-    //         for (int i = 0; i < 16; i++)
-    //         {
-    //             packet.channels[i] = count;
-    //         }
-
-    //         // make sure to limit sending frequency, SBUS is not that fast
-    //         // printf("LLLL\n");
-    //         sbus.write(packet);
-    //         count++;
-    //     }
-    //     flag = false;
-    // }
+    static auto count = 0;;
     if ((err = sbus.read()) != SBUS_FAIL)
     {
-        //cout << "WTF" << endl;
         // desync means a packet was misaligned and not received properly
         if (err == SBUS_ERR_DESYNC)
         {
             cerr << "SBUS desync" << endl;
         }
-        
     }
-    // cerr << "SBUS error: " << err << endl;
 }
 
 /************* Public Functions Declaration ******************/
