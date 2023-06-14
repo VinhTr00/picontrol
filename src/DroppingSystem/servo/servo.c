@@ -97,10 +97,6 @@ static void _servoTask(void){
     }
 }
 /************* Public Functions Declaration ******************/
-void servoSetAngle(uint8_t channel, float angle){
-    PCA9685_SetServoAngle(channel, angle);
-}
-
 void servoChangeMode(ServoMode mode){
     __servoMode = mode;
 }

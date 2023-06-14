@@ -1,0 +1,15 @@
+[Unit]
+Description = Dropping Service  
+Requires = systemd-user-sessions.service network.target sound.target
+After = multi-user.target
+
+[Service]
+User = rtr
+Group = rtr
+Type = simple  
+ExecStart = /home/rtr/bin/main
+Restart = always 
+RestartSec = 5
+
+[Install]
+WantedBy = multi-user.target

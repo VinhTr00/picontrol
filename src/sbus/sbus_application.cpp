@@ -16,6 +16,7 @@ using std::chrono::milliseconds;
 
 /*----------------------------------- Private Definitions ----------------------------------*/
 #define MIN_THRESHOLD_CHANGE    50
+#define CHANNEL_SERVO_OUT(CHANNEL)    (CHANNEL - 1)
 
 /*----------------------------------- Private Functions ------------------------------------*/
 static void _sbusOnPacket(const sbus_packet_t &packet);
@@ -37,7 +38,8 @@ static void _sbusComparePulse(const uint16_t channel)
     if (abs(channel - temp_channel) > MIN_THRESHOLD_CHANGE)
     {
         temp_channel = channel;
-        if (temp_channel > SBUS_SERVO_MIN && temp_channel < SBUS_SERVO_THRESHOLD_1){
+        if (temp_channel > SBUS_SERVO_MIN && temp_channel < SBUS_SERVO_THRESHOLD_1)
+        {
             speakerChangeMode(TONE1);
         }
         else if (temp_channel > SBUS_SERVO_THRESHOLD_1 && temp_channel < SBUS_SERVO_THRESHOLD_2)
@@ -69,7 +71,7 @@ static void _sbusOnPacket(const sbus_packet_t &packet)
         
         lastPrint = now;
     }
-    _sbusComparePulse(packet.channels[11]);
+    _sbusComparePulse(packet.channels[CHANNEL_SERVO_OUT(12)]);
 }
 
 static void _sbusSerialInit(void){

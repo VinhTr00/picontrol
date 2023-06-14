@@ -27,9 +27,9 @@ typedef struct {
 extern "C" {
 #endif
 
+#define servoSetAngle(channel, angle)   PCA9685_SetServoAngle(channel, angle)
 extern void servoSetup(void);
 extern void servoChangeMode(ServoMode mode);
-extern void servoSetAngle(uint8_t channel, float angle);
 
 #ifdef __cplusplus
 }
