@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #endif
 
+#include "pca9685.h"
 #define SERVO_TASK_PERIOD       10 //ms
 #define NUMBER_OF_SERVO         9
 

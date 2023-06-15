@@ -55,5 +55,5 @@ $ ./build/main
 
 ## Reference
 - [Raspberry-sbus](https://github.com/Carbon225/raspberry-sbus)
-- [STM32-HAL-PCA9685](https://github.com/henriheimann/stm32-hal-pca9685)
+- [STM32-HAL-PCA9685](https://github.com/lamik/PCA9685_Servo_STM32_HAL)
 

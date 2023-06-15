@@ -1,6 +1,5 @@
 /*----------------------------------- Include ----------------------------------------------*/
 #include "servo.h"
-#include "pca9685.h"
 #include "task_management.h"
 #include <wiringPi.h>
 
