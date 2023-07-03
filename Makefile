@@ -1,12 +1,15 @@
 # Thanks to Job Vranish (https://spin.atomicobject.com/2016/08/26/makefile-c-projects/)
 TARGET_EXEC := main
+TEST_EXEC := test
 
 BUILD_DIR := ./build
-SRC_DIRS := ./src
+SRC_DIRS := ./src 
+TEST_DIRS := ./test
 
 # Find all the C and C++ files we want to compile
 # Note the single quotes around the * expressions. The shell will incorrectly expand these otherwise, but we want to send the * directly to the find command.
 SRCS := $(shell find $(SRC_DIRS) -name '*.cpp' -or -name '*.c' -or -name '*.s')
+TEST_SRCS := $(shell find $(TEST_DIRS) -name '*.cpp' -or -name '*.c' -or -name '*.s')
 
 # Prepends BUILD_DIR and appends .o to every src file
 # As an example, ./your_dir/hello.cpp turns into ./build/./your_dir/hello.cpp.o
@@ -15,6 +18,7 @@ OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 # String substitution (suffix version without %).
 # As an example, ./build/hello.cpp.o turns into ./build/hello.cpp.d
 DEPS := $(OBJS:.o=.d)
+TEST_DEPS := $(OBJS_TEST:.o=.d)
 
 # Every folder in ./src will need to be passed to GCC so that it can find header files
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
@@ -40,6 +44,9 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 	mkdir -p $(dir $@)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@ -lwiringPi -lm $(MAVFLAGS)
 
+$(TEST_EXEC) : $(TEST_SRCS) $(OBJS)
+	mkdir -p $(dir $@)
+	$(CC) $(OBJS) $(CPPFLAGS) -o $@ $< $(LDFLAGS) -lwiringPi -lm
 
 .PHONY: clean
 clean:
@@ -49,4 +56,4 @@ clean:
 # Makefiles. Initially, all the .d files will be missing, and we don't want those
 # errors to show up.
 -include $(DEPS)
-
+-include $(TEST_DEPS)
