@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 {
     NetworkManager network_client = {
         .protocol = TCP,
-        .func = CLIENT,
+        .model = CLIENT,
     };
     
     if(argc > 2){
@@ -24,8 +24,6 @@ int main(int argc, char *argv[])
     network_init(&network_client, ip_addr, ip_port);
 
     network_connect(&network_client);
-
-    // network_read(&network_client, buffer, SIZE);
 
     while (1){
         network_read(&network_client, buffer, SIZE);

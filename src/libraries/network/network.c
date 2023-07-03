@@ -11,7 +11,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-#include <poll.h>
 #include <fcntl.h>
 
 void *get_in_addr(struct sockaddr *sa)
@@ -68,7 +67,7 @@ int network_init(NetworkManager *net, char * ip, char * port)
         fprintf(stderr, "init network failed\n");
         return -1;
     }
-    if (net->func == CLIENT)
+    if (net->model == CLIENT)
     {
         inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr), ipstr, sizeof ipstr);
         printf("client: connecting to %s port %s\n", ipstr, port);
@@ -76,28 +75,63 @@ int network_init(NetworkManager *net, char * ip, char * port)
 
     freeaddrinfo(servinfo); // all done with this structure
 
+    net->pfds = calloc(1, sizeof(struct pollfd));
     return 1;
 }
 
 int network_connect(NetworkManager *net)
 {
-    if (net->protocol == TCP){
+    if (net->mod == TCP){
         if (connect(net->fd, &net->addr, net->addr_len) == -1)
         {
             perror("network: connect");
+            return -1;
         }
+        printf("network: connect success\n");
         return 1;
     }
 }
 
 int network_read(NetworkManager *net, char * buf, int len)
 {
-    int bytes;
+    int bytes, poll_count;
     memset(buf, '\0', len);
-    if ((bytes = recv(net->fd, buf, len-1, 0)) != -1)
+
+    net->pfds[0].events = POLLIN;
+
+    net->pfds[0].fd = net->fd;
+
+    poll_count = poll(net->pfds, 1, 100);
+
+    if (poll_count == -1) {
+        perror("network: poll");
+        return -1;
+    }
+
+    if (net->pdfs[0].revents & POLLIN){
+        switch (net->protocol)
+        {
+            case TCP:
+                bytes = recv(net->fd, buf, len, 0);
+                break;
+            case UDP:
+                break;
+        }   
+    } 
+
+    if (bytes <= 0 )
     {
-        printf("client: received '%s'\n",buf);
-        printf("client: received '%d bytes'\n",bytes);
+        if (bytes == 0) {
+            // Connection closed
+            printf("pollserver: socket %d hung up\n", net->pdfs[0].fd);
+        } else {
+            perror("recv");
+            return -1;
+        }
+    }
+    else {
+        printf("network read: %d bytes\n", bytes);
+        printf("network received: '%s'\n", buf);
     }
     
     return bytes;

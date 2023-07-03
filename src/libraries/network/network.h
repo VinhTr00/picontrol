@@ -3,6 +3,7 @@
 
 #include <sys/types.h>
 #include <netinet/in.h>
+#include <poll.h>
 
 typedef enum {
 	TCP = 0,
@@ -13,15 +14,17 @@ typedef enum
 {
     CLIENT,
     SERVER,
-} Functional;
+} Model;
 
 typedef struct 
 {
     int fd;
     Protocol protocol;
-    Functional func;
+    Model model;
     struct sockaddr addr;
     socklen_t addr_len;
+
+    struct pollfd *pfds;
 } NetworkManager;
 
 #ifdef __cplusplus
