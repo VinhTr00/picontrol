@@ -41,18 +41,29 @@ int network_init(NetworkManager *net, char * ip, char * port)
 
     for (p = servinfo; p != NULL; p = p->ai_next) {
         if ((net->fd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1){
-            perror("network: socket");
+            perror("network init (socket)");
             continue;
         }
-        // fcntl(net->fd, F_SETFL, O_NONBLOCK);
+        /* --- INIT NON-BLOCKING --- */
+        int flags = fcntl(net->fd, F_GETFL, 0);
+        if (flags == -1) {
+            perror("network init (fcntl)");
+            return -1;
+        }
+        if (fcntl(net->fd, F_SETFL, flags | O_NONBLOCK) == -1) {
+            perror("network init (fcntl)");
+            return -1;
+        }
+        /* -------------------------- */
+        
         if (setsockopt(net->fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
         {
-            perror("setsockopt");
+            perror("network init (setsockopt)");
             exit(1);
         }
         if (net->protocol == SERVER){
             if (bind(net->fd, p->ai_addr, p->ai_addrlen) == -1){
-                perror("network: Bind");
+                perror("network init (Bind)");
                 return -1;
             }
             break;
@@ -64,9 +75,10 @@ int network_init(NetworkManager *net, char * ip, char * port)
     }
 
     if (p == NULL) {
-        fprintf(stderr, "init network failed\n");
+        fprintf(stderr, "network init (failed)\n");
         return -1;
     }
+
     if (net->model == CLIENT)
     {
         inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr), ipstr, sizeof ipstr);
@@ -81,34 +93,65 @@ int network_init(NetworkManager *net, char * ip, char * port)
 
 int network_connect(NetworkManager *net)
 {
-    if (net->mod == TCP){
-        if (connect(net->fd, &net->addr, net->addr_len) == -1)
+    if (net->model == TCP)
+    {
+        if (connect(net->fd, &net->addr, net->addr_len) == -1  && errno != EINPROGRESS)
         {
-            perror("network: connect");
+            perror("network connect (failed)");
             return -1;
         }
-        printf("network: connect success\n");
+
+        net->pfds[0].fd = net->fd;
+        net->pfds[0].events = POLLOUT;
+        int ready = poll(net->pfds, 1, 1000);
+
+        if (ready == -1) {
+            perror("network connect (poll)");
+            return -1;
+        }
+        else if (ready == 0) {
+            fprintf(stderr, "network connect (timeout)\n");
+            return -1;
+        }
+
+        int err;
+        socklen_t errlen = sizeof(err);
+        if (getsockopt(net->fd, SOL_SOCKET, SO_ERROR, &err, &errlen) == -1) 
+        {
+            perror("network connect (getsockopt)");
+            return -1;
+        }
+        if (err != 0) 
+        {
+            errno = err;
+            perror("network connect (failed)");
+            return -1;
+        }
+
+        printf("network connect: success\n");
         return 1;
     }
 }
 
-int network_read(NetworkManager *net, char * buf, int len)
+int network_read(NetworkManager *net, char * buf, int len, int timeout)
 {
-    int bytes, poll_count;
+    int bytes = 0;
     memset(buf, '\0', len);
 
-    net->pfds[0].events = POLLIN;
-
     net->pfds[0].fd = net->fd;
-
-    poll_count = poll(net->pfds, 1, 100);
+    net->pfds[0].events = POLLIN;
+    int poll_count = poll(net->pfds, 1, timeout * 1000); 
 
     if (poll_count == -1) {
-        perror("network: poll");
+        perror("network read (poll)");
         return -1;
     }
-
-    if (net->pdfs[0].revents & POLLIN){
+    else if (poll_count == 0) {
+        fprintf(stderr, "read timeout\n");
+        return -1;
+    }
+    
+    if (net->pfds[0].revents & POLLIN){
         switch (net->protocol)
         {
             case TCP:
@@ -119,27 +162,26 @@ int network_read(NetworkManager *net, char * buf, int len)
         }   
     } 
 
-    if (bytes <= 0 )
+    else if (bytes < 0 )
     {
-        if (bytes == 0) {
-            // Connection closed
-            printf("pollserver: socket %d hung up\n", net->pdfs[0].fd);
-        } else {
-            perror("recv");
-            return -1;
-        }
+        perror("network read (recv)");
+        return -1;
+
     }
-    else {
+    if (bytes > 0) {
         printf("network read: %d bytes\n", bytes);
-        printf("network received: '%s'\n", buf);
+        printf("network read: '%s'\n", buf);
     }
     
     return bytes;
+}
+int network_write(NetworkManager *net, char * buf, int len, int timeout)
+{
+    
 }
 
 int network_deinit(NetworkManager *net)
 {
     close(net->fd);
-
     return 1;
 }

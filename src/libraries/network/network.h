@@ -33,8 +33,8 @@ extern "C" {
 
 extern int network_init(NetworkManager *net, char * ip, char * port);
 extern int network_connect(NetworkManager *net);
-extern int network_write(NetworkManager *net);
-extern int network_read(NetworkManager *net, char * buf, int len);
+extern int network_write(NetworkManager *net, char * buf, int len, int timeout);
+extern int network_read(NetworkManager *net, char * buf, int len, int timeout);
 extern int network_deinit(NetworkManager *net);
 
 #ifdef __cplusplus
