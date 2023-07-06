@@ -32,11 +32,11 @@ int network_init(NetworkManager *net, char * ip, char * port)
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_INET;
     hints.ai_flags = AI_PASSIVE;
-    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_socktype = (net->protocol == TCP) ? SOCK_STREAM : SOCK_DGRAM;
 
     if ((status = getaddrinfo(ip, port, &hints, &servinfo)) != 0) {
         fprintf(stderr, "getaddrinfo error: %s\n", gai_strerror(status));
-        exit(1);
+        return -1;
     }
 
     for (p = servinfo; p != NULL; p = p->ai_next) {
@@ -59,9 +59,9 @@ int network_init(NetworkManager *net, char * ip, char * port)
         if (setsockopt(net->fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
         {
             perror("network init (setsockopt)");
-            exit(1);
+            return -1;
         }
-        if (net->protocol == SERVER){
+        if (net->model == SERVER){
             if (bind(net->fd, p->ai_addr, p->ai_addrlen) == -1){
                 perror("network init (Bind)");
                 return -1;
@@ -93,7 +93,7 @@ int network_init(NetworkManager *net, char * ip, char * port)
 
 int network_connect(NetworkManager *net)
 {
-    if (net->model == TCP)
+    if (net->protocol == TCP)
     {
         if (connect(net->fd, &net->addr, net->addr_len) == -1  && errno != EINPROGRESS)
         {
@@ -105,11 +105,13 @@ int network_connect(NetworkManager *net)
         net->pfds[0].events = POLLOUT;
         int ready = poll(net->pfds, 1, 1000);
 
-        if (ready == -1) {
+        if (ready == -1) 
+        {
             perror("network connect (poll)");
             return -1;
         }
-        else if (ready == 0) {
+        else if (ready == 0) 
+        {
             fprintf(stderr, "network connect (timeout)\n");
             return -1;
         }
@@ -128,9 +130,18 @@ int network_connect(NetworkManager *net)
             return -1;
         }
 
-        printf("network connect: success\n");
-        return 1;
     }
+    else 
+    {
+        int numbytes;
+        char buf[10] = "Connected";
+        if ((numbytes = sendto(net->fd, buf, strlen(buf), 0, &net->addr, net->addr_len)) == -1) {
+            perror("network UDP sendto failed");
+            return -1;
+        }
+    }
+    printf("network connect: success\n");
+    return 1;
 }
 
 int network_read(NetworkManager *net, char * buf, int len, int timeout)
@@ -158,6 +169,7 @@ int network_read(NetworkManager *net, char * buf, int len, int timeout)
                 bytes = recv(net->fd, buf, len, 0);
                 break;
             case UDP:
+                bytes = recvfrom(net->fd, buf, len, 0, &net->addr, &net->addr_len);
                 break;
         }   
     } 
@@ -170,14 +182,47 @@ int network_read(NetworkManager *net, char * buf, int len, int timeout)
     }
     if (bytes > 0) {
         printf("network read: %d bytes\n", bytes);
-        printf("network read: '%s'\n", buf);
+        // printf("network read: '%s'\n", buf);
     }
     
     return bytes;
 }
 int network_write(NetworkManager *net, char * buf, int len, int timeout)
 {
-    
+    int bytes = 0;
+    net->pfds[0].fd = net->fd;
+    net->pfds[0].events = POLLOUT;
+    int poll_count = poll(net->pfds, 1, timeout * 1000);
+    if (poll_count == -1) {
+        perror("network write (poll)");
+        return -1;
+    }
+    else if (poll_count == 0) {
+        fprintf(stderr, "write timeout\n");
+        return -1;
+    }
+    if (net->pfds[0].revents & POLLOUT){
+        switch (net->protocol)
+        {
+            case TCP:
+                bytes = send(net->fd, buf, len, 0);
+                break;
+            case UDP:
+                bytes = sendto(net->fd, buf, len, 0, &net->addr, net->addr_len);
+                break;
+        }   
+    }
+    else if (bytes < 0) 
+    {
+        perror("network write (send)");
+        return -1;
+    }
+    if (bytes > 0)
+    {
+        printf("network write: %d bytes\n", bytes);
+        // printf("network write: '%s'\n", buf);
+    }
+    return bytes;
 }
 
 int network_deinit(NetworkManager *net)

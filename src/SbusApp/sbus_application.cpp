@@ -20,7 +20,6 @@ using std::chrono::milliseconds;
 #define CHANNEL_SERVO_OUT(CHANNEL)    (CHANNEL - 1)
 
 /*----------------------------------- Private Functions ------------------------------------*/
-static void _sbusOnPacket(const sbus_packet_t &packet);
 static void _sbusTask(void);
 static void _sbusSerialInit(void);
 static void _sbusComparePulse(const uint16_t channel);
@@ -67,25 +66,7 @@ static void _sbusComparePulse(const uint16_t channel)
         }
     }
 }
-static void _sbusOnPacket(const sbus_packet_t &packet)
-{
-    static auto lastPrint = steady_clock::now();
-    auto now = steady_clock::now();
 
-    if (now - lastPrint > milliseconds(500))
-    {
-        for (int i = 0; i < 16; ++i)
-        {
-            cout << "ch" << i + 1 << ": " << packet.channels[i] << "\t";
-        }
-        cout << endl;
-        
-        lastPrint = now;
-        _sbusComparePulse(packet.channels[CHANNEL_SERVO_OUT(12)]);
-        _sbusControlLed(packet.channels[CHANNEL_SERVO_OUT(11)]);
-    }
-
-}
 
 static void _sbusSerialInit(void){
     sbus.onPacket(_sbusOnPacket);
@@ -116,4 +97,24 @@ void sbusSetup(void){
     _sbusSerialInit();
     taskCreate(&sbusTaskID, TASK_MODE_REPEATED, _sbusTask);
     taskStart(sbusTaskID, SBUS_TASK_PERIOD);
+}
+
+void _sbusOnPacket(const sbus_packet_t &packet)
+{
+    static auto lastPrint = steady_clock::now();
+    auto now = steady_clock::now();
+
+    if (now - lastPrint > milliseconds(500))
+    {
+        for (int i = 0; i < 16; ++i)
+        {
+            cout << "ch" << i + 1 << ": " << packet.channels[i] << "\t";
+        }
+        cout << endl;
+        
+        lastPrint = now;
+        _sbusComparePulse(packet.channels[CHANNEL_SERVO_OUT(12)]);
+        _sbusControlLed(packet.channels[CHANNEL_SERVO_OUT(11)]);
+    }
+
 }
