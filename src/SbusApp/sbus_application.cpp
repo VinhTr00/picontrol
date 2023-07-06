@@ -5,6 +5,7 @@
 #include "sbus_application.h"
 #include "task_management.h"
 #include "speaker.h"
+#include "servo.h"
 
 using std::cout;
 using std::cerr;
@@ -19,10 +20,10 @@ using std::chrono::milliseconds;
 #define CHANNEL_SERVO_OUT(CHANNEL)    (CHANNEL - 1)
 
 /*----------------------------------- Private Functions ------------------------------------*/
-static void _sbusOnPacket(const sbus_packet_t &packet);
 static void _sbusTask(void);
 static void _sbusSerialInit(void);
 static void _sbusComparePulse(const uint16_t channel);
+static void _sbusControlLed(const uint16_t channel);
 
 /*----------------------------------- Private Variables ------------------------------------*/
 static SBUS sbus;
@@ -32,13 +33,22 @@ static TaskIDType sbusTaskID;
 
 
 /************* Private Functions Declaration *****************/
+static void _sbusControlLed(const uint16_t channel)
+{
+    float angle = (channel - SBUS_SERVO_PULSE_MIN) * MAX_ANGLE / (SBUS_SERVO_PULSE_MAX - SBUS_SERVO_PULSE_MIN);
+    if (angle < MIN_ANGLE) angle = MIN_ANGLE;
+	else if (angle > MAX_ANGLE) angle = MAX_ANGLE;
+    printf("Angle: %.2f\n", angle);
+    servoSetAngle(0, angle);
+}
+
 static void _sbusComparePulse(const uint16_t channel)
 {
     static uint16_t temp_channel;
     if (abs(channel - temp_channel) > MIN_THRESHOLD_CHANGE)
     {
         temp_channel = channel;
-        if (temp_channel > SBUS_SERVO_MIN && temp_channel < SBUS_SERVO_THRESHOLD_1)
+        if (temp_channel > SBUS_SERVO_THRESHOLD_MIN && temp_channel < SBUS_SERVO_THRESHOLD_1)
         {
             speakerChangeMode(TONE1);
         }
@@ -46,7 +56,7 @@ static void _sbusComparePulse(const uint16_t channel)
         {
             speakerChangeMode(MIC);
         }
-        else if (temp_channel > SBUS_SERVO_THRESHOLD_2 && temp_channel < SBUS_SERVO_MAX)
+        else if (temp_channel > SBUS_SERVO_THRESHOLD_2 && temp_channel < SBUS_SERVO_THRESHOLD_MAX)
         {
             speakerChangeMode(TONE2);
         }
@@ -56,27 +66,11 @@ static void _sbusComparePulse(const uint16_t channel)
         }
     }
 }
-static void _sbusOnPacket(const sbus_packet_t &packet)
-{
-    static auto lastPrint = steady_clock::now();
-    auto now = steady_clock::now();
 
-    if (now - lastPrint > milliseconds(500))
-    {
-        for (int i = 0; i < 16; ++i)
-        {
-            cout << "ch" << i + 1 << ": " << packet.channels[i] << "\t";
-        }
-        cout << endl;
-        
-        lastPrint = now;
-    }
-    _sbusComparePulse(packet.channels[CHANNEL_SERVO_OUT(12)]);
-}
 
 static void _sbusSerialInit(void){
     sbus.onPacket(_sbusOnPacket);
-    sbus_err_t err = sbus.install("/dev/ttyAMA0", false);  // false for non-blocking
+    sbus_err_t err = sbus.install(SERIAL_READ_SBUS_PATH, false);  // false for non-blocking
     if (err != SBUS_OK)
     {
         cerr << "SBUS install error: " << err << endl;
@@ -103,4 +97,24 @@ void sbusSetup(void){
     _sbusSerialInit();
     taskCreate(&sbusTaskID, TASK_MODE_REPEATED, _sbusTask);
     taskStart(sbusTaskID, SBUS_TASK_PERIOD);
+}
+
+void _sbusOnPacket(const sbus_packet_t &packet)
+{
+    static auto lastPrint = steady_clock::now();
+    auto now = steady_clock::now();
+
+    if (now - lastPrint > milliseconds(500))
+    {
+        for (int i = 0; i < 16; ++i)
+        {
+            cout << "ch" << i + 1 << ": " << packet.channels[i] << "\t";
+        }
+        cout << endl;
+        
+        lastPrint = now;
+        _sbusComparePulse(packet.channels[CHANNEL_SERVO_OUT(12)]);
+        _sbusControlLed(packet.channels[CHANNEL_SERVO_OUT(11)]);
+    }
+
 }

@@ -174,7 +174,7 @@ PCA9685_STATUS PCA9685_Init(void)
 	// cout << "Return value of PCA9685_SoftwareReset(): " << temp << endl; 
 	printf("Return value of PCA9685_SoftwareReset(): %d\n", temp);
 #ifdef PCA9685_SERVO_MODE
-	PCA9685_SetPwmFrequency(50);
+	PCA9685_SetPwmFrequency(48);
 #else
 	PCA9685_SetPwmFrequency(1000);
 #endif
