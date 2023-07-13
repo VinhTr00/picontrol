@@ -43,17 +43,18 @@ $ ./build
 
 ### Install Project
 ```
-$ git clone https://github.com/VinhTr00/raspberry-with-pca9685-sbus.git
-$ cd raspberry-with-pca9685
+$ git clone https://github.com/VinhTr00/picontrol.git
+$ cd picontrol
 $ make
 ```
 
 ### How to run
 ```
-$ ./build/main
+$ ./build/picontrol
 ```
 
 ## Reference
 - [Raspberry-sbus](https://github.com/Carbon225/raspberry-sbus)
 - [STM32-HAL-PCA9685](https://github.com/lamik/PCA9685_Servo_STM32_HAL)
-
+- [Network](https://beej.us/guide/bgnet/html//index.html#structs)
+- ChatGPT

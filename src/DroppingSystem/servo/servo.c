@@ -15,7 +15,7 @@ static ServoMode _servoOneDrop(uint8_t *channel);
 /*----------------------------------- Private Variables ------------------------------------*/
 static TaskIDType servoTaskID;
 static ServoType ServoArray[NUMBER_OF_SERVO];
-static uint8_t __servoChannel;
+static uint8_t __servoChannel = 0;
 static ServoMode __servoMode;
 
 /*----------------------------------- Public Variables -------------------------------------*/
@@ -27,16 +27,18 @@ static void _servoStartPWM(uint8_t channel){
     delay(300);
     servoSetAngle(channel, 0);
 }
+
 static void _servoAllDrop(uint8_t *channel){
-    for (uint8_t i = 0; i < NUMBER_OF_SERVO; i++){
+    for (uint8_t i = *channel; i < NUMBER_OF_SERVO; i++){
         servoSetAngle(ServoArray[i].channel, 180);
     }
     delay(300);
-    for (uint8_t i = 0; i < NUMBER_OF_SERVO; i++){
+    for (uint8_t i = *channel; i < NUMBER_OF_SERVO; i++){
         servoSetAngle(ServoArray[i].channel, 0);
         ServoArray[i].activated = false;
-        *channel = 0;
     }
+    *channel = 0;
+
 }
 
 static ServoMode _servoOneDrop(uint8_t *channel){

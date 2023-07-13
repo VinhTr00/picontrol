@@ -6,8 +6,7 @@
 #include "servo.h"
 #include "sbus_application.h"
 #include "speaker.h"
-#include "network.h"
-#include "ardupilotmega/mavlink.h"
-#include "common/mavlink.h"
+#include "communicate.h"
+
 
 #endif /* __MAIN_H */

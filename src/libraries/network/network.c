@@ -180,10 +180,10 @@ int network_read(NetworkManager *net, char * buf, int len, int timeout)
         return -1;
 
     }
-    if (bytes > 0) {
-        printf("network read: %d bytes\n", bytes);
-        // printf("network read: '%s'\n", buf);
-    }
+    // if (bytes > 0) {
+    //     printf("network read: %d bytes\n", bytes);
+    //     printf("network read: '%s'\n", buf);
+    // }
     
     return bytes;
 }

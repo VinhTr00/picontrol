@@ -14,7 +14,7 @@
 
 
 /*----------------------------------- Public Definitions ----------------------------------*/
-#define MAX_TASKS_NUM                   6
+#define MAX_TASKS_NUM                   10
 #define TASK_ID_DEF(timerID)            (*timerID = taskMannage.numOfTasks)        
 typedef uint8_t                         TaskIDType;
 

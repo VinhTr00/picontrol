@@ -8,7 +8,7 @@
 /*----------------------------------- Private Variables ------------------------------------*/
 
 /*----------------------------------- Public Variables -------------------------------------*/
-TaskMannageType taskMannage;
+static TaskMannageType taskMannage;
 
 /*********** Private Functions Declaration ****************/
 /**
