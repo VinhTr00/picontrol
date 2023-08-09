@@ -1,6 +1,6 @@
 /*----------------------------------- Include ----------------------------------------------*/
 #include "communicate.h"
-#include "sbus_application.h"
+#include "sbus_spec.h"
 #include "pca9685.h"
 #include "servo.h"
 #include "task_management.h"

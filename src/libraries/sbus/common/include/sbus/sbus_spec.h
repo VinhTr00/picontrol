@@ -17,4 +17,12 @@
 #define SBUS_OPT_FS  (0b1000)
 #define SBUS_OPT_FL  (0b0100)
 
+#define SBUS_SERVO_THRESHOLD_MIN        800     //us
+#define SBUS_SERVO_THRESHOLD_1          1300    //us
+#define SBUS_SERVO_THRESHOLD_2          1700    //us
+#define SBUS_SERVO_THRESHOLD_MAX        2100    //us
+
+#define SBUS_SERVO_PULSE_MIN            1100    //us
+#define SBUS_SERVO_PULSE_MAX            2000    //us
+
 #endif
