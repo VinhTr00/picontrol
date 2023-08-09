@@ -1,5 +1,8 @@
 /*----------------------------------- Include ----------------------------------------------*/
 #include "communicate.h"
+#include "sbus_application.h"
+#include "pca9685.h"
+#include "servo.h"
 #include "task_management.h"
 #include "network.h"
 #include "ardupilotmega/mavlink.h"
@@ -14,6 +17,7 @@
 /*----------------------------------- Private Functions ------------------------------------*/
 static void _commTask(void);
 static void _commInitNetwork(void);
+static void _commControlServo(uint8_t pca_channel, uint16_t servo_channel);
 
 /*----------------------------------- Private Variables ------------------------------------*/
 mavlink_message_t rx_msg;
@@ -31,6 +35,15 @@ static NetworkManager network_client = {
 };
 
 /*********** Private Functions Declaration ****************/
+static void _commControlServo(uint8_t pca_channel, uint16_t servo_channel)
+{
+    float angle = (servo_channel - SBUS_SERVO_PULSE_MIN) * MAX_ANGLE / (SBUS_SERVO_PULSE_MAX - SBUS_SERVO_PULSE_MIN);
+    if (angle < MIN_ANGLE) angle = MIN_ANGLE;
+	else if (angle > MAX_ANGLE) angle = MAX_ANGLE;
+    printf("Angle: %.2f\n", angle);
+    servoSetAngle(pca_channel, angle);
+}
+
 void _commInitNetwork(void)
 {
     network_init(&network_client, (char *) IP, (char *) PORT);
@@ -39,6 +52,7 @@ void _commInitNetwork(void)
 
 void _commTask(void){
     int bytes = 0;
+    static uint16_t last_value = 0;
     if (bytes = network_read(&network_client, rx_buffer, SIZE, 5))
     {
         for (int i = 0; i < bytes; i++)
@@ -58,6 +72,10 @@ void _commTask(void){
                         break;
                 }
             }
+        }
+        if (servo.servo5_raw > last_value){
+            _commControlServo(0, servo.servo5_raw);
+            last_value = servo.servo5_raw;
         }
     }
     else if (bytes <= 0) {
