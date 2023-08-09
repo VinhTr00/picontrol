@@ -23,6 +23,7 @@ static void _commControlServo(uint8_t pca_channel, uint16_t servo_channel);
 mavlink_message_t rx_msg;
 mavlink_status_t status;
 mavlink_servo_output_raw_t servo = {0};
+mavlink_rc_channels_t rc_channel = {0};
 
 char tx_buffer[SIZE] = {0};
 char rx_buffer[SIZE] = {0};
@@ -61,6 +62,9 @@ void _commTask(void){
             {
                 // printf("Received message with ID %d, sequence: %d from component %d of system %d\n", rx_msg.msgid, rx_msg.seq, rx_msg.compid, rx_msg.sysid);
                 switch (rx_msg.msgid){
+                    case MAVLINK_MSG_ID_RC_CHANNELS:
+                        mavlink_msg_rc_channels_decode(&rx_msg, &rc_channel);
+                        break;
                     case MAVLINK_MSG_ID_SERVO_OUTPUT_RAW:
                         mavlink_msg_servo_output_raw_decode(&rx_msg, &servo);
                         printf("servo 1: %d \t servo 2: %d \t servo 3: %d \t servo 4: %d \t servo 5: %d \t servo 6: %d \t servo 7: %d \t servo 8: %d \t servo 9: %d \t servo 10: %d \t servo 11: %d \t servo 12: %d \t servo 13: %d \t servo 14: %d \t servo 15: %d \t servo 16: %d \t\n", 
