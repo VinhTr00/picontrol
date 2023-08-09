@@ -171,8 +171,13 @@ PCA9685_STATUS PCA9685_Init(void)
 	pca9685_i2c = wiringPiI2CSetup(PCA9685_ADDRESS);
 	PCA9685_STATUS temp;
 	temp = PCA9685_SoftwareReset();
-	// cout << "Return value of PCA9685_SoftwareReset(): " << temp << endl; 
-	printf("Return value of PCA9685_SoftwareReset(): %d\n", temp);
+	if (temp == 0){
+		printf("PCA9685: Connected\n");
+	}
+	else
+	{
+		printf("PCA9685: Disconnected\n");
+	}
 #ifdef PCA9685_SERVO_MODE
 	PCA9685_SetPwmFrequency(48);
 #else
