@@ -1,15 +1,15 @@
 #!/bin/bash
 
-echo "Creating dropping service"
+echo "Creating picontrol service"
 
 sudo mkdir -p ~/bin
-sudo scp build/main ~/bin/main
+sudo scp build/picontrol ~/bin/picontrol
 
-sudo scp conf/systemd/dropping.service /etc/systemd/system/dropping.service
+sudo scp conf/systemd/picontrol.service /etc/systemd/system/picontrol.service
 
 sudo systemctl daemon-reload
-sudo systemctl enable dropping.service
-sudo systemctl start dropping.service
+sudo systemctl enable picontrol.service
+sudo systemctl start picontrol.service
 
 echo "###############################"
 echo "### Setup Service Completed ###"

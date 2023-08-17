@@ -53,7 +53,7 @@ void _commInitNetwork(void)
 
 void _commTask(void){
     int bytes = 0;
-    static uint16_t last_value = 0;
+    static uint16_t last_value = SBUS_SERVO_PULSE_MIN;
     if (bytes = network_read(&network_client, rx_buffer, SIZE, 5))
     {
         for (int i = 0; i < bytes; i++)
@@ -77,8 +77,18 @@ void _commTask(void){
                 }
             }
         }
-        if (servo.servo5_raw > last_value){
-            _commControlServo(0, servo.servo5_raw);
+        if (servo.servo5_raw != last_value){
+            if (servo.servo5_raw > last_value){
+                for (int i = last_value; i <= servo.servo5_raw; i += 10){
+                    _commControlServo(2, servo.servo5_raw);
+                }
+            }
+            else {
+                for (int i = last_value; i >= servo.servo5_raw; i -= 10){
+                    _commControlServo(2, servo.servo5_raw);
+                }
+            }
+            // _commControlServo(0, servo.servo5_raw);
             last_value = servo.servo5_raw;
         }
     }

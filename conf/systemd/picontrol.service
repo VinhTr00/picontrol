@@ -7,7 +7,7 @@ After = multi-user.target
 User = rtr
 Group = rtr
 Type = simple  
-ExecStart = /home/rtr/bin/main
+ExecStart = /home/rtr/bin/picontrol
 Restart = always 
 RestartSec = 5
 
