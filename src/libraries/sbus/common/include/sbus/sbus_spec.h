@@ -23,6 +23,6 @@
 #define SBUS_SERVO_THRESHOLD_MAX        2100    //us
 
 #define SBUS_SERVO_PULSE_MIN            1100    //us
-#define SBUS_SERVO_PULSE_MAX            2000    //us
+#define SBUS_SERVO_PULSE_MAX            1900    //us
 
 #endif

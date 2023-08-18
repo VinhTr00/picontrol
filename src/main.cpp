@@ -5,7 +5,7 @@ int main(int argc, char **argv)
 {
     wiringPiSetup();
     tasksSetup();
-    buttonSetUp();
+    // buttonSetUp();
     servoSetup();
     speakerSetup();
     sbusSetup();

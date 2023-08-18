@@ -38,11 +38,16 @@ static NetworkManager network_client = {
 /*********** Private Functions Declaration ****************/
 static void _commControlServo(uint8_t pca_channel, uint16_t servo_channel)
 {
-    float angle = (servo_channel - SBUS_SERVO_PULSE_MIN) * MAX_ANGLE / (SBUS_SERVO_PULSE_MAX - SBUS_SERVO_PULSE_MIN);
-    if (angle < MIN_ANGLE) angle = MIN_ANGLE;
-	else if (angle > MAX_ANGLE) angle = MAX_ANGLE;
-    printf("Angle: %.2f\n", angle);
-    servoSetAngle(pca_channel, angle);
+    // float angle = (servo_channel - SBUS_SERVO_PULSE_MIN) * MAX_ANGLE / (SBUS_SERVO_PULSE_MAX - SBUS_SERVO_PULSE_MIN);
+    // if (angle < MIN_ANGLE) angle = MIN_ANGLE;
+	// else if (angle > MAX_ANGLE) angle = MAX_ANGLE;
+    // printf("Angle: %.2f\n", angle);
+    // servoSetAngle(pca_channel, angle);
+
+    float angle = (servo_channel/(1000000.0/PWM_FREQUENCY)) * 4095;
+    printf("%f\n", angle);
+    
+    PCA9685_SetPin(pca_channel, (uint16_t)angle, 0);
 }
 
 void _commInitNetwork(void)
@@ -54,6 +59,7 @@ void _commInitNetwork(void)
 void _commTask(void){
     int bytes = 0;
     static uint16_t last_value = SBUS_SERVO_PULSE_MIN;
+    // printf("WTF\n");
     if (bytes = network_read(&network_client, rx_buffer, SIZE, 5))
     {
         for (int i = 0; i < bytes; i++)
@@ -79,16 +85,19 @@ void _commTask(void){
         }
         if (servo.servo5_raw != last_value){
             if (servo.servo5_raw > last_value){
-                for (int i = last_value; i <= servo.servo5_raw; i += 10){
-                    _commControlServo(2, servo.servo5_raw);
+                for (int i = last_value; i <= servo.servo5_raw; i += 5){
+                    _commControlServo(2, i);
+                    delay(1);
                 }
             }
             else {
-                for (int i = last_value; i >= servo.servo5_raw; i -= 10){
-                    _commControlServo(2, servo.servo5_raw);
+                for (int i = last_value; i >= servo.servo5_raw; i -= 5){
+                    _commControlServo(2, i);
+                    delay(1);
                 }
             }
             // _commControlServo(0, servo.servo5_raw);
+            // _commControlServo(2, servo.servo5_raw);
             last_value = servo.servo5_raw;
         }
     }

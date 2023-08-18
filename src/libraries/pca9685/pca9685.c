@@ -13,6 +13,7 @@
 #include "pca9685.h"
 #include "task_management.h"
 #include "math.h"
+#include <stdio.h>
 
 static int pca9685_i2c;
 
@@ -87,10 +88,10 @@ PCA9685_STATUS PCA9685_SetPwmFrequency(uint16_t Frequency)
 	}
 	else
 	{
-		PrescalerVal = (25000000 / (4096.0 * (float)Frequency)) - 1;
+		PrescalerVal = (26000000 / (4096.0 * (float)Frequency)) - 1;
 		Prescale = floor(PrescalerVal + 0.5);
 	}
-
+	printf("Pres: %d\n", Prescale);
 	//
 	//	To change the frequency, PCA9685 have to be in Sleep mode.
 	// 	
@@ -179,7 +180,7 @@ PCA9685_STATUS PCA9685_Init(void)
 		printf("PCA9685: Disconnected\n");
 	}
 #ifdef PCA9685_SERVO_MODE
-	PCA9685_SetPwmFrequency(48);
+	PCA9685_SetPwmFrequency(PWM_FREQUENCY);
 #else
 	PCA9685_SetPwmFrequency(1000);
 #endif
