@@ -3,9 +3,9 @@
 
 #define SPEAKER_TASK_PERIOD         10 //ms
 
-#define TONE1_PIN                   21
-#define TONE2_PIN                   22
-#define MIC_PIN                     23
+#define TONE1_PIN                   5//24 5
+#define TONE2_PIN                   4//23 4
+#define MIC_PIN                     6//25 6
 
 typedef enum {
 	IDLE,

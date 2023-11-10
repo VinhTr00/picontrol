@@ -172,7 +172,8 @@ PCA9685_STATUS PCA9685_Init(void)
 	pca9685_i2c = wiringPiI2CSetup(PCA9685_ADDRESS);
 	PCA9685_STATUS temp;
 	temp = PCA9685_SoftwareReset();
-	if (temp == 0){
+	if (temp == 0)
+	{
 		printf("PCA9685: Connected\n");
 	}
 	else

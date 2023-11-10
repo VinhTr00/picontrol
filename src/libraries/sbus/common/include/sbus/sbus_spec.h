@@ -24,5 +24,6 @@
 
 #define SBUS_SERVO_PULSE_MIN            1100    //us
 #define SBUS_SERVO_PULSE_MAX            1900    //us
+#define SBUS_SERVO_PULSE_NEUTRAL        1500    //us
 
 #endif
