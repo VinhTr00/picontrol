@@ -18,13 +18,36 @@
 #define SYSTEM_ID           1
 #define COMPONENT_ID        50
 
+/*----------------------------------- Private Typedef ------------------------------------*/
+typedef enum {
+    PAYLOAD_BRIGHTNESS_LIGHT,
+    PAYLOAD_SERVO_LIGHT,
+    PAYLOAD_SPEAKER,
+    PAYLOAD_TOTAL,
+} PAYLOAD_INDEX_E;
+
+typedef struct {
+    uint16_t *rc_value[PAYLOAD_TOTAL];
+    SERVO_OUT channel[PAYLOAD_TOTAL];
+} PayloadChannel_t;
+
 /*----------------------------------- Private Functions ------------------------------------*/
 static void _commTask(void);
 static void _commInitNetwork(void);
-static void _commControlServo(uint8_t pca_channel, uint16_t servo_channel);
-static void _commControlSpeaker(uint16_t servo_channel);
+static void _commInitPayload(PayloadChannel_t *pHandle);
+
+static void _commControl_servo(uint8_t pca_channel);
+static void startSmoothServo(uint8_t pca_channel, uint16_t rc_val);
+static void _commControl_speaker(void);
+static void _commControl_lightBrightness(uint8_t pca_channel);
 
 /*----------------------------------- Private Variables ------------------------------------*/
+PayloadChannel_t heraPayload = {
+    .channel[PAYLOAD_BRIGHTNESS_LIGHT] = CHANNEL_LIGHT_BRIGHTNESS,
+    .channel[PAYLOAD_SERVO_LIGHT] = CHANNEL_LIGHT_SERVO,
+    .channel[PAYLOAD_SPEAKER] = CHANNEL_SPEAKER_MODE,
+};
+
 mavlink_message_t rx_msg;
 mavlink_status_t status;
 mavlink_servo_output_raw_t servo = {0};
@@ -41,39 +64,142 @@ static NetworkManager network_client = {
 };
 
 /*********** Private Functions Declaration ****************/
-static void _commControlSpeaker(uint16_t servo_channel)
+void _commInitPayload(PayloadChannel_t *pHandle)
 {
-    if (servo_channel > SBUS_SERVO_THRESHOLD_MIN && servo_channel < SBUS_SERVO_THRESHOLD_1)
+    for (uint8_t i = 0; i < PAYLOAD_TOTAL; i++)
     {
-        speakerChangeMode(TONE1);
-    }
-    else if (servo_channel > SBUS_SERVO_THRESHOLD_1 && servo_channel < SBUS_SERVO_THRESHOLD_2)
-    {
-        speakerChangeMode(MIC);
-    }
-    else if (servo_channel > SBUS_SERVO_THRESHOLD_1 && servo_channel < SBUS_SERVO_THRESHOLD_MAX)
-    {
-        speakerChangeMode(TONE2);
-    }
-    else 
-    {
-        speakerChangeMode(ERROR_STATE);
+        switch (pHandle->channel[i])
+        {
+            case SERVO_OUT_1:
+                pHandle->rc_value[i] = &servo.servo1_raw;
+                break;
+            case SERVO_OUT_2:
+                pHandle->rc_value[i] = &servo.servo2_raw;
+                break;
+            case SERVO_OUT_3:
+                pHandle->rc_value[i] = &servo.servo3_raw;
+                break;
+            case SERVO_OUT_4:
+                pHandle->rc_value[i] = &servo.servo4_raw;
+                break;
+            case SERVO_OUT_5:
+                pHandle->rc_value[i] = &servo.servo5_raw;
+                break;
+            case SERVO_OUT_6:
+                pHandle->rc_value[i] = &servo.servo6_raw;
+                break;
+            case SERVO_OUT_7:
+                pHandle->rc_value[i] = &servo.servo7_raw;
+                break;
+            case SERVO_OUT_8:
+                pHandle->rc_value[i] = &servo.servo8_raw;
+                break;
+            case SERVO_OUT_9:
+                pHandle->rc_value[i] = &servo.servo9_raw;
+                break;
+            case SERVO_OUT_10:
+                pHandle->rc_value[i] = &servo.servo10_raw;
+                break;
+            case SERVO_OUT_11:
+                pHandle->rc_value[i] = &servo.servo11_raw;
+                break;
+            case SERVO_OUT_12:
+                pHandle->rc_value[i] = &servo.servo12_raw;
+                break;
+            case SERVO_OUT_13:
+                pHandle->rc_value[i] = &servo.servo13_raw;
+                break;
+            case SERVO_OUT_14:
+                pHandle->rc_value[i] = &servo.servo14_raw;
+                break;
+            case SERVO_OUT_15:
+                pHandle->rc_value[i] = &servo.servo15_raw;
+                break;
+            case SERVO_OUT_16:
+                pHandle->rc_value[i] = &servo.servo16_raw;
+                break;
+            default:
+                break;
+        }
     }
 }
 
-static void _commControlServo(uint8_t pca_channel, uint16_t servo_channel)
+static void _commControl_speaker(void)
+{
+    static uint16_t last_rc_val;
+    uint16_t rc_val = *heraPayload.rc_value[PAYLOAD_SPEAKER];
+    if (rc_val != last_rc_val)
+    {
+        if (rc_val > SBUS_SERVO_THRESHOLD_MIN && rc_val < SBUS_SERVO_THRESHOLD_1)
+        {
+            speakerChangeMode(TONE1);
+        }
+        else if (rc_val > SBUS_SERVO_THRESHOLD_1 && rc_val < SBUS_SERVO_THRESHOLD_2)
+        {
+            speakerChangeMode(MIC);
+        }
+        else if (rc_val > SBUS_SERVO_THRESHOLD_1 && rc_val < SBUS_SERVO_THRESHOLD_MAX)
+        {
+            speakerChangeMode(TONE2);
+        }
+        else 
+        {
+            speakerChangeMode(ERROR_STATE);
+        }
+        last_rc_val = rc_val;
+    }
+}
+void startSmoothServo(uint8_t pca_channel, uint16_t rc_val)
 {
     // float angle = (servo_channel - SBUS_SERVO_PULSE_MIN) * MAX_ANGLE / (SBUS_SERVO_PULSE_MAX - SBUS_SERVO_PULSE_MIN);
     // if (angle < MIN_ANGLE) angle = MIN_ANGLE;
 	// else if (angle > MAX_ANGLE) angle = MAX_ANGLE;
     // printf("Angle: %.2f\n", angle);
     // servoSetAngle(pca_channel, angle);
-
-    float angle = (servo_channel/(1000000.0/PWM_FREQUENCY)) * 4095;
-    printf("%f\n", angle);
-    
-    PCA9685_SetPin(pca_channel, (uint16_t)angle, 0);
+    uint16_t step = PCA9685_CalcOntimeValue(rc_val);
+    printf("Step Servo: %d\n", step);
+    PCA9685_SetPin(pca_channel, step, 0);
 }
+
+static void _commControl_servo(uint8_t pca_channel)
+{
+    static uint16_t last_rc_val;
+    uint16_t rc_val = *heraPayload.rc_value[PAYLOAD_SERVO_LIGHT];
+    if (rc_val != last_rc_val)
+    {
+        if (rc_val > last_rc_val)
+        {
+            for (int i = last_rc_val; i <= rc_val; i += 5)
+            {
+                startSmoothServo(2, i);
+                delay(1);
+            }
+        }
+        else 
+        {
+            for (int i = last_rc_val; i >= rc_val; i -= 5)
+            {
+                startSmoothServo(2, i);
+                delay(1);
+            }
+        }
+        last_rc_val = rc_val;
+    }       
+}
+
+void _commControl_lightBrightness(uint8_t pca_channel)
+{
+    static uint16_t last_rc_val;
+    uint16_t rc_val = *heraPayload.rc_value[PAYLOAD_BRIGHTNESS_LIGHT];
+    if (rc_val != last_rc_val)
+    {
+        uint16_t step = PCA9685_CalcOntimeValue(rc_val);
+        printf("Step Brightness: %d\n", step);
+        PCA9685_SetPin(pca_channel, step, 0);
+        last_rc_val = rc_val;
+    }
+}
+
 
 void _commInitNetwork(void)
 {
@@ -83,8 +209,8 @@ void _commInitNetwork(void)
 
 void _commTask(void){
     int bytes = 0;
-    static uint16_t last_value_speaker = SBUS_SERVO_PULSE_NEUTRAL;
-    static uint16_t last_value_light = SBUS_SERVO_PULSE_MIN;
+    // static uint16_t last_value_speaker = SBUS_SERVO_PULSE_NEUTRAL;
+    // static uint16_t last_value_light = SBUS_SERVO_PULSE_MIN;
     static bool network_connected = false;
     if (network_connected == false)
     {
@@ -118,28 +244,14 @@ void _commTask(void){
                 }
             }
         }
-        if (servo.servo12_raw != last_value_speaker)
-        {
-            last_value_speaker = servo.servo12_raw;
-            _commControlSpeaker(last_value_speaker);
-        }
-        if (servo.servo5_raw != last_value_light){
-            if (servo.servo5_raw > last_value_light){
-                for (int i = last_value_light; i <= servo.servo5_raw; i += 5){
-                    _commControlServo(2, i);
-                    delay(1);
-                }
-            }
-            else {
-                for (int i = last_value_light; i >= servo.servo5_raw; i -= 5){
-                    _commControlServo(2, i);
-                    delay(1);
-                }
-            }
-            // _commControlServo(0, servo.servo5_raw);
-            // _commControlServo(2, servo.servo5_raw);
-            last_value_light = servo.servo5_raw;
-        }
+        // if (servo.servo12_raw != last_value_speaker)
+        // {
+        //     last_value_speaker = servo.servo12_raw;
+        //     _commControl_speaker(last_value_speaker);
+        // }
+        _commControl_speaker();
+        _commControl_servo(2);
+        _commControl_lightBrightness(0);
     }
     else 
     {
@@ -153,4 +265,5 @@ void commSetUp(void)
 {
     taskCreate(&commTaskID, TASK_MODE_REPEATED, _commTask);
     taskStart(commTaskID, COMM_TASK_PERIOD);
+    _commInitPayload(&heraPayload);
 }

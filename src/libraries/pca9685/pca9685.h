@@ -34,7 +34,7 @@
 #define SERVO_MAX		500
 #define MIN_ANGLE		0.0
 #define MAX_ANGLE		120.0
-#define PWM_FREQUENCY	333
+#define PWM_FREQUENCY	50
 #endif
 
 //
@@ -73,6 +73,7 @@ typedef enum {
 #define PCA9685_MODE1_AI_BIT		5
 #define PCA9685_MODE1_EXTCLK_BIT	6
 #define PCA9685_MODE1_RESTART_BIT	7
+		
 
 typedef enum {
 	PCA9685_OK 		= 0,
@@ -92,6 +93,7 @@ PCA9685_STATUS PCA9685_AutoIncrement(uint8_t Enable);
 PCA9685_STATUS PCA9685_SetPwmFrequency(uint16_t Frequency);
 #endif
 
+uint16_t PCA9685_CalcOntimeValue(uint16_t pulseWidth);
 PCA9685_STATUS PCA9685_SetPwm(uint8_t Channel, uint16_t OnTime, uint16_t OffTime);
 PCA9685_STATUS PCA9685_SetPin(uint8_t Channel, uint16_t Value, uint8_t Invert);
 #ifdef PCA9685_SERVO_MODE

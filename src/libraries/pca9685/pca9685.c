@@ -121,6 +121,12 @@ PCA9685_STATUS PCA9685_SetPwm(uint8_t Channel, uint16_t OnTime, uint16_t OffTime
 	}
 	return PCA9685_OK;
 }
+uint16_t PCA9685_CalcOntimeValue(uint16_t pulseWidth)
+{
+	float peroid_us = 1000000/PWM_FREQUENCY; 
+	uint16_t step = pulseWidth/peroid_us * 4095;
+	return step;
+}
 
 PCA9685_STATUS 	PCA9685_SetPin(uint8_t Channel, uint16_t Value, uint8_t Invert)
 {
