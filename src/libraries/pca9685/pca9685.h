@@ -80,6 +80,26 @@ typedef enum {
 	PCA9685_ERROR	= 1
 } PCA9685_STATUS;
 
+typedef enum {
+	PCA_PWM_0,
+	PCA_PWM_1,
+	PCA_PWM_2,
+	PCA_PWM_3,
+	PCA_PWM_4,
+	PCA_PWM_5,
+	PCA_PWM_6,
+	PCA_PWM_7,
+	PCA_PWM_8,
+	PCA_PWM_9,
+	PCA_PWM_10,
+	PCA_PWM_11,
+	PCA_PWM_12,
+	PCA_PWM_13,
+	PCA_PWM_14,
+	PCA_PWM_15,
+	PCA_PWM_TOTAL,
+} PCA_PWM_E;
+
 #ifdef __cplusplus
 extern "C" {
 #endif

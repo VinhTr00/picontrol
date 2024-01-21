@@ -250,8 +250,8 @@ void _commTask(void){
         //     _commControl_speaker(last_value_speaker);
         // }
         _commControl_speaker();
-        _commControl_servo(2);
-        _commControl_lightBrightness(0);
+        _commControl_servo(PCA_PWM_2);
+        _commControl_lightBrightness(PCA_PWM_3);
     }
     else 
     {
