@@ -12,6 +12,7 @@
 #include <wiringPi.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <math.h>
 
 /*----------------------------------- Private Definitions ----------------------------------*/
 #define SIZE                255
@@ -122,6 +123,7 @@ void _commInitPayload(PayloadChannel_t *pHandle)
                 break;
         }
     }
+    
 }
 
 static void _commControl_speaker(void)
@@ -171,18 +173,19 @@ static void _commControl_servo(uint8_t pca_channel)
         {
             for (int i = last_rc_val; i <= rc_val; i += 5)
             {
-                startSmoothServo(2, i);
-                delay(1);
+                startSmoothServo(pca_channel, i);
+                delayMicroseconds(2000);
             }
         }
         else 
         {
             for (int i = last_rc_val; i >= rc_val; i -= 5)
             {
-                startSmoothServo(2, i);
-                delay(1);
+                startSmoothServo(pca_channel, i);
+                delayMicroseconds(2000);
             }
         }
+        startSmoothServo(pca_channel, rc_val);
         last_rc_val = rc_val;
     }       
 }
@@ -249,9 +252,9 @@ void _commTask(void){
         //     last_value_speaker = servo.servo12_raw;
         //     _commControl_speaker(last_value_speaker);
         // }
+        _commControl_lightBrightness(PCA_CHANNEL_LIGHT_BRIGHTNESS);
         _commControl_speaker();
         _commControl_servo(PCA_CHANNEL_LIGHT_SERVO);
-        _commControl_lightBrightness(PCA_CHANNEL_LIGHT_BRIGHTNESS);
     }
     else 
     {
