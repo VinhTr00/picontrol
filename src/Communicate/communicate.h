@@ -33,6 +33,10 @@ typedef enum {
 #define CHANNEL_LIGHT_SERVO             SERVO_OUT_12
 #define CHANNEL_SPEAKER_MODE            SERVO_OUT_15
 
+#define PCA_CHANNEL_LIGHT_BRIGHTNESS    PCA_PWM_3
+#define PCA_CHANNEL_LIGHT_SERVO         PCA_PWM_2
+
+
 extern void commSetUp(void);
 
 
