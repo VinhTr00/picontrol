@@ -238,9 +238,7 @@ void _commTask(void){
                     //     break;
                     case MAVLINK_MSG_ID_SERVO_OUTPUT_RAW:
                         mavlink_msg_servo_output_raw_decode(&rx_msg, &servo);
-                        printf("servo 1: %d \t servo 2: %d \t servo 3: %d \t servo 4: %d \t servo 5: %d \t servo 6: %d \t servo 7: %d \t servo 8: %d \t servo 9: %d \t servo 10: %d \t servo 11: %d \t servo 12: %d \t servo 13: %d \t servo 14: %d \t servo 15: %d \t servo 16: %d \t\n", 
-                            servo.servo1_raw, servo.servo2_raw, servo.servo3_raw, servo.servo4_raw, servo.servo5_raw, servo.servo6_raw, servo.servo7_raw, servo.servo8_raw,
-                            servo.servo9_raw, servo.servo10_raw, servo.servo11_raw, servo.servo12_raw, servo.servo13_raw, servo.servo14_raw, servo.servo15_raw, servo.servo16_raw);
+                        printf("servo 11 (Light): %d \t servo 12 (Speaker): %d \t servo 13 (Servo Light): %d \t\n",servo.servo11_raw, servo.servo12_raw, servo.servo13_raw);
                         break;
                     default:
                         break;
