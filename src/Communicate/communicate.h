@@ -6,8 +6,8 @@ extern "C" {
 #endif
 
 #define COMM_TASK_PERIOD        10 //ms
-#define IP                      "192.168.0.29"
-#define PORT                    "5762"  
+#define IP                      "192.168.0.215"
+#define PORT                    "5760"  
 
 typedef enum {
     SERVO_OUT_1,
